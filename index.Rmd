@@ -1,0 +1,41 @@
+---
+title: "index"
+author: "Alex Kuai"
+date: '2022-06-30'
+output: html_document
+---
+
+In this tutorial, we're going to be creating maps based off of US Census Bureau data, then publichsing them to a GitHub Pages website. 
+My name is **Alex Kuai**, and sign up for **Dr. Kane's FREE Data Science Course!**. 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(tidycensus)
+library(tigris)
+library(ggthemes)
+options(tigris_use_cache = TRUE)
+```
+
+```{r}
+rural <- get_decennial(geography = "state",
+              variables = c("P001001", "P002005"), 
+              year = 2010,
+              output = "wide",
+              geometry = TRUE) |> 
+  shift_geometry() 
+```
+
+```{r}
+rural |> 
+  #filter(NAME != ("Alaska") & NAME != "Hawaii", NAME != "Puerto Rico") |> 
+  # Vector c("Alaska", "Hawaii", "Puerto Rico") does not work in filter? WHy?
+  ggplot(aes(fill = 100 * P002005 / P001001)) +
+  geom_sf() +
+  scale_fill_viridis_c(option = "plasma", direction = -1) +
+  theme_void() +
+  labs(title = "Rural geography of the United States",
+        fill = "Percent Rural",
+        caption = "Source: Census 2010")
+```
